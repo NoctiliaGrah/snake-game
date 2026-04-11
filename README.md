@@ -6,7 +6,7 @@ I'm unlikely to keep working on this after I've gotten all the main Snake featur
 -Noctilia Grah, April 2026
 
 # Building
-This requires SDL 2, instructions on how to install it can be found here:
+This requires SDL2, instructions on how to install it can be found here:
 
 https://wiki.libsdl.org/SDL2/Installation
 
