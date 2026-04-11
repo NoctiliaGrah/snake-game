@@ -15,6 +15,7 @@
 
 #include <stdio.h> // used for printing to console
 #include <stdbool.h>
+#include <stdlib.h>
 #include <SDL2/SDL.h> // graphics/sound/input library
 
 #include "snakegame.h"
@@ -31,23 +32,13 @@
 // TODO: This is probably broken, also move it to a different file
 //
 void DrawSnake(SDL_Surface* window_surface,
-               SnakeElement* snake,
-               Tail *tail_pointer)
+               SnakeElement* snake)
 {
-    if (snake != NULL && tail_pointer != NULL)
+    if (snake != NULL)
 {
         SNAKE(snake->x, snake->y);
-
-        struct Tail *current = tail_pointer;
-        while (current != NULL)
-        {
-            TAIL(current->x,  current->y);
-            current = current->tail;
-            continue;
-        }
         DrawSnake(window_surface,
-                  snake->next_element,
-                  tail_pointer->tail);
+                  snake->next_element);
 }
 
 }
@@ -57,8 +48,7 @@ void DrawSnake(SDL_Surface* window_surface,
 // TODO: Rewrite this so it isn't horrific
 //
 void ResetApple(SnakeElement *snake_pointer,
-                Apple *apple_pointer,
-                Tail *tail_pointer)
+                Apple *apple_pointer)
 {
 
 
@@ -80,24 +70,10 @@ void ResetApple(SnakeElement *snake_pointer,
                     valid_position = false;
                     continue;
                 }
-
-            // check the snake's tail
-            Tail *current = tail_pointer->tail;
-            while (current != NULL)
-                {
-                if (apple_pointer->x == current->x &&
-                    apple_pointer->y == current->y)
-                    {
-                        valid_position = false;
-                        break;
-                    }
-
-                    current = current->tail;
-                }
+            snake_pointer = snake_pointer->next_element;
         }
-
-
 }
+
 
 //
 // ResetApple
@@ -123,7 +99,7 @@ int GameLoop()
 {
     // ugly struct but putting it anywhere else
     // breaks things, i'll fix it later (never)
-    SnakeElement snake = {5,5,4,4,4,4,NULL};
+    SnakeElement snake = {5,5,4,4,NULL};
     Direction direction = {0,0};
     AppleLocation apple = {0,0};
 
@@ -131,12 +107,8 @@ int GameLoop()
     Direction *direction_pointer = &direction;
     AppleLocation *apple_pointer = &apple;
 
-    Tail tail = {5,5,4,5,NULL};
-    Tail *tail_pointer = &tail;
 
-
-
-    ResetApple(snake_pointer, apple_pointer, tail_pointer);
+    ResetApple(snake_pointer, apple_pointer);
     SDL_Rect override_rect = {0,0,window_width, window_height};
 
     bool is_growing = false;
@@ -184,17 +156,18 @@ int GameLoop()
 
 
         // if the snake eats the apple
+        is_growing = false;
         if (snake_pointer->x == apple.x && snake_pointer->y == apple.y)
         {
             ResetApple(snake_pointer,
-                       apple_pointer,
-                       tail_pointer);
+                       apple_pointer);
             is_growing = true;
         }
 
-        P_MoveSnake(snake_pointer, direction_pointer, tail_pointer);
+        P_MoveSnake(snake_pointer, direction_pointer);
+        is_growing = false;
         DrawApple(window_surface, apple_pointer);
-        DrawSnake(window_surface, &snake, &tail);
+        DrawSnake(window_surface, &snake);
         R_DrawGrid(window_surface);
 
         SDL_UpdateWindowSurface(window);

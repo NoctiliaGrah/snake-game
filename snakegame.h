@@ -26,30 +26,14 @@
 // STRUCTS
 typedef struct SnakeElement SnakeElement;
 typedef struct Snake Snake;
-typedef struct Tail Tail;
 typedef struct Apple Apple;
 
 typedef struct SnakeElement
 {
     int x, y;
     int last_x, last_y;
-    int temp_x, temp_y;
     SnakeElement *next_element; // null if it's the last element
 } SnakeElement;
-
-typedef struct Tail
-{
-    int x, y;
-    int last_x, last_y;
-    Tail *tail; // ditto
-} Tail;
-
-typedef struct Snake
-{
-    bool is_growing;
-    bool is_dying;
-    SnakeElement *body;
-} Snake;
 
 typedef struct Apple
 {

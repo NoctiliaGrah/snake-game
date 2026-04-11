@@ -19,7 +19,7 @@
 
 void P_MoveSnake(SnakeElement *snake_pointer,
                  Direction *direction_pointer,
-                 Tail *tail_current);
+                 bool is_growing);
 
 
 #endif

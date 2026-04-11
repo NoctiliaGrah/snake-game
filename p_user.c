@@ -14,6 +14,7 @@
 //
 
 #include <stddef.h>
+#include <stdlib.h>
 #include <SDL2/SDL.h>
 
 #include "snakegame.h"
@@ -23,25 +24,64 @@
 // P_MoveSnake
 // TODO: Make this less shit and less buggy
 //
-void P_MoveSnake(SnakeElement *snake_pointer,
+void P_MoveSnake(SnakeElement *head,
                  Direction *direction_pointer,
-                 Tail *tail_current,
                  bool is_growing)
 {
-    struct SnakeElement *current = snake_pointer;
+    // save the head's old position, move the head based
+    // on direction, and move the rest of the body
+    head->last_x = head->x;
+    head->last_y = head->y;
+    head->x += direction_pointer->dx;
+    head->y += direction_pointer->dy;
 
-    current->last_x = snake_pointer->x;
-    current->last_y = snake_pointer->y;
+    struct SnakeElement *current = head->next_element;
 
-    snake_pointer->x += direction_pointer->dx;
-    snake_pointer->y += direction_pointer->dy;
+    int temp_x = head->last_x;
+    int temp_y = head->last_y;
 
-    while (tail_current != NULL)
+    // pointer to the last node
+    struct SnakeElement *tail_node = head;
+
+    while (current != NULL)
     {
-        tail_current->x = current->last_x;
-        tail_current->y = current->last_y;
+        // save this segment's current position, move
+        // it to the old position of the segment in
+        // front of it, then update the temporary
+        // variable for the next segment & track the
+        // last node we touch
+        current->last_x = current->x;
+        current->last_y = current->y;
 
-        break;
+        current->x = temp_x;
+        current->y = temp_y;
+
+        temp_x = current->last_x;
+        temp_y = current->last_y;
+
+        tail_node = current;
+        current = current->next_element;
     }
 
+    if (is_growing == true)
+    {
+        printf("is_growing, memory allocated\n");
+        // allocate memory for the new segment
+        SnakeElement *new_segment =
+        (SnakeElement*)malloc(sizeof(SnakeElement));
+
+        if (new_segment != NULL)
+        {
+            // put the new segment at the old
+            // position of the last segment
+            new_segment->x = temp_x;
+            new_segment->y = temp_y;
+            new_segment->last_x = temp_x;
+            new_segment->last_y = temp_y;
+            //current->next_element = new_segment;
+            new_segment->next_element = NULL;
+
+            tail_node->next_element = new_segment;
+        }
+    }
 }

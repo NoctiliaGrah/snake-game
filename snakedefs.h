@@ -38,7 +38,6 @@
 
 // game specific defines
 #define SNAKE(x,y) R_FillCell(window_surface,x,y,COLOR_WHITE)
-#define TAIL(x,y)  R_FillCell(window_surface,x,y,COLOR_GREEN)
 #define APPLE(x,y) R_FillCell(window_surface,x,y,COLOR_RED)
 
 #define TICKRATE 100
