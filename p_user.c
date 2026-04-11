@@ -65,7 +65,7 @@ void P_MoveSnake(SnakeElement *head,
 
     if (is_growing == true)
     {
-        printf("is_growing, memory allocated\n");
+        //printf("is_growing, memory allocated\n"); // old debug code
         // allocate memory for the new segment
         SnakeElement *new_segment =
         (SnakeElement*)malloc(sizeof(SnakeElement));

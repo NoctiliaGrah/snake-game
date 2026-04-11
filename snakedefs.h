@@ -22,6 +22,7 @@
 // window defs
 #define window_width 640
 #define window_height 480
+#define window_flags 0
 
 // grid defs
 #define cell_size 13
@@ -42,7 +43,23 @@
 
 #define TICKRATE 100
 
+// despite these being duplicate values, it's probably
+// better to have both x & y to avoid confusion.
 
+// snake's initial position & direction
+#define INIT_X 5
+#define INIT_Y 5
+#define TAIL_INIT_X 4
+#define TAIL_INIT_Y 4
+#define DIR_RESET 0
 
+// HACKHACK: These are here to make magic numbers go away, but it
+// kinda sucks because of the underlying values just being -1 & 1.
+// I don't want to put in the effort to redo the movement code yet
+// so this is what I'm stuck with for right now.
+#define DIR_LEFT -1
+#define DIR_RIGHT 1
+#define DIR_UP -1
+#define DIR_DOWN 1
 
 #endif

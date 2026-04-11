@@ -25,8 +25,6 @@
 
 #include "p_user.h"
 
-
-
 //
 // DrawSnake
 // TODO: This is probably broken, also move it to a different file
@@ -45,14 +43,14 @@ void DrawSnake(SDL_Surface* window_surface,
 
 //
 // ResetApple
-// TODO: Rewrite this so it isn't horrific
+// TODO: Rewrite this so it doesn't give me pain to look at
 //
 void ResetApple(SnakeElement *snake_pointer,
                 Apple *apple_pointer)
 {
 
 
-    // if the apple coordinates collide with the snake
+    // if a valid position is available
     bool valid_position = false;
     while (!valid_position)
         {
@@ -82,36 +80,38 @@ void ResetApple(SnakeElement *snake_pointer,
 void DrawApple(SDL_Surface* window_surface,
                Apple* apple_pointer)
 {
-if (apple_pointer != NULL)
-{
+    if (apple_pointer != NULL)
+    {
     APPLE(apple_pointer->x,apple_pointer->y);
     DrawApple(window_surface, apple_pointer->next_element);
+    }
 }
-}
-
-
 
 //
 // GameLoop
-// TODO: This is ugly, fix it
+// TODO: This is horrific
 //
 int GameLoop()
 {
     // ugly struct but putting it anywhere else
     // breaks things, i'll fix it later (never)
-    SnakeElement snake = {5,5,4,4,NULL};
-    Direction direction = {0,0};
-    AppleLocation apple = {0,0};
+    SnakeElement snake = {INIT_X, INIT_Y, TAIL_INIT_X, TAIL_INIT_Y, NULL};
+    Direction direction = {0,0}; // x, y
+    AppleLocation apple = {0,0}; // x, y
 
+    // used for parsing the values within these
+    // structs to functions without using the
+    // structs themselves.
     SnakeElement *snake_pointer = &snake;
     Direction *direction_pointer = &direction;
     AppleLocation *apple_pointer = &apple;
 
-
-    ResetApple(snake_pointer, apple_pointer);
     SDL_Rect override_rect = {0,0,window_width, window_height};
 
     bool is_growing = false;
+    bool has_grown = false;
+    bool first_move = true; // for before the snake touches 1st apple
+
     bool gameOn = true;
 
     // init video, timer (why?) & events
@@ -122,12 +122,14 @@ int GameLoop()
 
     SDL_Window* window =
     SDL_CreateWindow("Classic Snake",
-                     SDL_WINDOWPOS_CENTERED,
-                     SDL_WINDOWPOS_CENTERED,
-                     window_width, window_height, 0);
+                      SDL_WINDOWPOS_CENTERED,
+                      SDL_WINDOWPOS_CENTERED,
+                      window_width, window_height, window_flags);
 
     SDL_Surface* window_surface = SDL_GetWindowSurface(window);
 
+    // i don't know why but if it isn't here, everything breaks.
+    ResetApple(snake_pointer, apple_pointer);
     // MAIN GAME LOOP
     while (gameOn)
     {
@@ -136,46 +138,108 @@ int GameLoop()
             if (event.type == SDL_QUIT)
                 gameOn = false;
 
+            // HACKHACK: We need a way to tell if the snake
+            // has eaten an apple yet and change the movement
+            // to be free or locked accordingly. This is the
+            // simplest implementation I could think of, but
+            // it is very bad and ugly and horrible and not
+            // at all scaleable in any way. Oh well!
+            //
+            // If the snake hasn't eaten an apple yet, let
+            // it move freely, but if it has eaten one, don't
+            // let it move in the direction opposite of where
+            // it's currently moving.
+            //
+            // If a key for a specific direction is pressed
+            // and if the snake isn't going in the opposite
+            // direction, set the x/y to the right value and
+            // and reset the perpendicular axis back to its
+            // initial value.
+            //
+            // Secretly, the values for the directions are
+            // just -1 and 1, with the reset being 0, but
+            // don't let John know that or he will get mad!
+
             if (event.type == SDL_KEYDOWN)
             {
-                direction = (struct Direction) {0,0};
-                    // garbage temporary implementation
+                if (has_grown)
+                {
+                    if (event.key.keysym.sym == SDLK_LEFT &&
+                        direction.dx != DIR_RIGHT)
+                        {
+                            direction.dx = DIR_LEFT;
+                            direction.dy = DIR_RESET;
+                        }
+                    if (event.key.keysym.sym == SDLK_RIGHT &&
+                        direction.dx != DIR_LEFT)
+                        {
+                            direction.dx = DIR_RIGHT;
+                            direction.dy = DIR_RESET;
+                        }
+                    if (event.key.keysym.sym == SDLK_UP &&
+                        direction.dy != DIR_DOWN)
+                        {
+                            direction.dy = DIR_UP;
+                            direction.dx = DIR_RESET;
+                        }
+                    if (event.key.keysym.sym == SDLK_DOWN &&
+                        direction.dy != DIR_UP)
+                        {
+                            direction.dy = DIR_DOWN;
+                            direction.dx = DIR_RESET;
+                        }
+                }
+                else
+                {
+                    direction.dx = DIR_RESET;
+                    direction.dy = DIR_RESET;
+
                     if (event.key.keysym.sym == SDLK_LEFT)
-                        direction.dx = -1;
+                        direction.dx = DIR_LEFT;
                     if (event.key.keysym.sym == SDLK_RIGHT)
-                        direction.dx = 1;
+                        direction.dx = DIR_RIGHT;
                     if (event.key.keysym.sym == SDLK_UP)
-                        direction.dy = -1;
+                        direction.dy = DIR_UP;
                     if (event.key.keysym.sym == SDLK_DOWN)
-                        direction.dy = 1;
+                        direction.dy = DIR_DOWN;
+                    }
+                }
+
             }
-        }
-
-        // blank the screen before drawing the snake elements
-        SDL_FillRect(window_surface, &override_rect, COLOR_BLACK);
 
 
-        // if the snake eats the apple
-        is_growing = false;
-        if (snake_pointer->x == apple.x && snake_pointer->y == apple.y)
+    // blank the screen before drawing the snake elements
+    SDL_FillRect(window_surface, &override_rect, COLOR_BLACK);
+
+
+    // if the snake eats the apple spawn the apple at a new
+    // position set the is_growing flag to true so the snake
+    // knows when to grow
+    if (snake_pointer->x == apple.x && snake_pointer->y == apple.y)
         {
             ResetApple(snake_pointer,
                        apple_pointer);
             is_growing = true;
+            has_grown  = true;
         }
+    P_MoveSnake(snake_pointer, direction_pointer, is_growing);
 
-        P_MoveSnake(snake_pointer, direction_pointer);
-        is_growing = false;
-        DrawApple(window_surface, apple_pointer);
-        DrawSnake(window_surface, &snake);
-        R_DrawGrid(window_surface);
+    // HACKHACK: Unfortunately, I have to manually set the
+    // is_growing flag to false after it gets set to true so
+    // that it doesn't activate each frame. It's the easiest
+    // way to do this, but I want something better. I don't
+    // know if it's possible, though.
+    is_growing = false;
 
-        SDL_UpdateWindowSurface(window);
-        SDL_Delay(TICKRATE);
+    DrawApple(window_surface, apple_pointer);
+    DrawSnake(window_surface, &snake);
+    R_DrawGrid(window_surface);
+
+    SDL_UpdateWindowSurface(window);
+    SDL_Delay(TICKRATE);
 
     }
 }
-
 
 int main()
 {
@@ -185,4 +249,3 @@ int main()
     GameLoop();
 
 }
-
