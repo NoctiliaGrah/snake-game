@@ -1,4 +1,4 @@
-// Most of this is taken from various tutorial on YouTube that
+// Most of this is taken from various tutorials on YouTube that
 // were modified to fit whatever I needed from it. It's very
 // likely that this code will no longer be maintained or
 // compile in [CURRENT YEAR], so take this more as a learning
