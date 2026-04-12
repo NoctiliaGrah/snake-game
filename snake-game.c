@@ -100,8 +100,8 @@ void DrawApple(SDL_Surface* window_surface,
 // InputBuffering
 //
 // HACKHACK: pressing L/R at the same time as U/D will often cause the
-// snake to move back into itself if the first input is the perpendicular
-// to the current movement axis and if the parallel input is opposite of
+// snake to move back into itself if the first input is perpendicular to
+// the current movement axis and if the parallel input is opposite of
 // the current direction. For example, if the snake is moving left and
 // you press right and up/down on the same frame, the snake will go back
 // into itself if the up/down input is registered first and the right
