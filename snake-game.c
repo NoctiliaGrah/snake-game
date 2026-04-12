@@ -74,7 +74,7 @@ void ResetApple(SnakeElement *snake_pointer,
 
 
 //
-// ResetApple
+// DrawApple
 // TODO: Move to a different file
 //
 void DrawApple(SDL_Surface* window_surface,
@@ -95,7 +95,9 @@ int GameLoop()
 {
     // ugly struct but putting it anywhere else
     // breaks things, i'll fix it later (never)
-    SnakeElement snake = {INIT_X, INIT_Y, TAIL_INIT_X, TAIL_INIT_Y, NULL};
+    SnakeElement snake = {INIT_X, INIT_Y,
+                          TAIL_INIT_X, TAIL_INIT_Y,
+                          NULL};
     Direction direction = {0,0}; // x, y
     AppleLocation apple = {0,0}; // x, y
 
@@ -106,11 +108,14 @@ int GameLoop()
     Direction *direction_pointer = &direction;
     AppleLocation *apple_pointer = &apple;
 
+    // new_segment prototype because the compiler is retarded
+    SnakeElement *new_segment =
+        (SnakeElement*)malloc(sizeof(SnakeElement));
+
     SDL_Rect override_rect = {0,0,window_width, window_height};
 
     bool is_growing = false;
     bool has_grown = false;
-    bool first_move = true; // for before the snake touches 1st apple
 
     bool gameOn = true;
 
@@ -136,7 +141,14 @@ int GameLoop()
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT)
+                {
+
+                free(new_segment);
+                new_segment = NULL;
+
                 gameOn = false;
+
+                }
 
             // HACKHACK: We need a way to tell if the snake
             // has eaten an apple yet and change the movement
@@ -153,41 +165,63 @@ int GameLoop()
             // If a key for a specific direction is pressed
             // and if the snake isn't going in the opposite
             // direction, set the x/y to the right value and
-            // and reset the perpendicular axis back to its
+            // and reset the perpendicular axis back to the
             // initial value.
             //
             // Secretly, the values for the directions are
             // just -1 and 1, with the reset being 0, but
             // don't let John know that or he will get mad!
 
+// FIXME: pressing L/R at the same time as U/D will often cause the
+// snake to go back into itself due to both inputs being made before
+// a frame is finished.
+//
+// SOLUTION: hold onto the second input for any given frame and override
+// whatever input is being given on the frame afterwards, preferrably
+// also holding onto that overridden input and using it for the next frame.
+//
+// this requires some finicking because you'll have to discard the second
+// input of the overridden frame in order to not cause the bug to happen
+// if these types of inputs happen two or more times in a row.
+
+            // TODO: ^ that.
+
             if (event.type == SDL_KEYDOWN)
             {
                 if (has_grown)
                 {
+                    //printf("DEBUG: has_grown init dx = %d, dy = %d\n",
+                    //       direction.dx, direction.dy);
                     if (event.key.keysym.sym == SDLK_LEFT &&
                         direction.dx != DIR_RIGHT)
-                        {
-                            direction.dx = DIR_LEFT;
-                            direction.dy = DIR_RESET;
-                        }
+                    {
+                        direction.dx = DIR_LEFT;
+                        direction.dy = DIR_RESET;
+                        //printf("DIR_LEFT, ");
+                    }
                     if (event.key.keysym.sym == SDLK_RIGHT &&
                         direction.dx != DIR_LEFT)
-                        {
-                            direction.dx = DIR_RIGHT;
-                            direction.dy = DIR_RESET;
-                        }
+                    {
+                        direction.dx = DIR_RIGHT;
+                        direction.dy = DIR_RESET;
+                        //printf("DIR_RIGHT, ");
+                    }
                     if (event.key.keysym.sym == SDLK_UP &&
                         direction.dy != DIR_DOWN)
-                        {
-                            direction.dy = DIR_UP;
-                            direction.dx = DIR_RESET;
-                        }
+                    {
+                        direction.dy = DIR_UP;
+                        direction.dx = DIR_RESET;
+                        //printf("DIR_UP, ");
+                    }
                     if (event.key.keysym.sym == SDLK_DOWN &&
                         direction.dy != DIR_UP)
-                        {
-                            direction.dy = DIR_DOWN;
-                            direction.dx = DIR_RESET;
-                        }
+                    {
+                        direction.dy = DIR_DOWN;
+                        direction.dx = DIR_RESET;
+                        //printf("DIR_DOWN, ");
+                    }
+                    //printf("DEBUG: has_grown final dx = %d, dy = %d\n",
+                           //direction.dx, direction.dy);
                 }
                 else
                 {

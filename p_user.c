@@ -22,7 +22,7 @@
 
 //
 // P_MoveSnake
-// TODO: Make this less shit and less buggy
+// TODO: There's probably a better way to do this
 //
 void P_MoveSnake(SnakeElement *head,
                  Direction *direction_pointer,
@@ -35,13 +35,13 @@ void P_MoveSnake(SnakeElement *head,
     head->x += direction_pointer->dx;
     head->y += direction_pointer->dy;
 
-    struct SnakeElement *current = head->next_element;
+    SnakeElement *current = head->next_element;
 
     int temp_x = head->last_x;
     int temp_y = head->last_y;
 
     // pointer to the last node
-    struct SnakeElement *tail_node = head;
+    SnakeElement *tail_node = head;
 
     while (current != NULL)
     {
