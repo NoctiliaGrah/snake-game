@@ -12,5 +12,5 @@ These are partially based on the prefixes in the DOOM (1993) source code.
 Code that's for rendering stuff on screen.
 ### p_ // player
 A bit of a misnomer, this contains the behavior of each "entity", like the snake, the apple, etc.
-## s_ // snake-game (doesn't exist yet blegh)
+### s_ // snake-game (doesn't exist yet blegh)
 Main game code. This includes the calling of most other functions to make the game run.
