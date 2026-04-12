@@ -124,10 +124,6 @@ void InputBuffering(InputBuffer *input_buffer1,
                     InputBuffer *discard_buffer,
                     Direction *direction_pointer)
 {
-    //printf("DEBUG: InputBuffering func start b1 = %d, %d init b2 = %d, %d init discard = %d, %d\n",
-    //       input_buffer1->x, input_buffer1->y,
-    //       input_buffer2->x, input_buffer2->y,
-    //       discard_buffer->x, discard_buffer->y);
 
     if (input_buffer1->x == I_BUFFER_INIT &&
         input_buffer1->y == I_BUFFER_INIT)
@@ -147,10 +143,6 @@ void InputBuffering(InputBuffer *input_buffer1,
         discard_buffer->y = direction_pointer->dy;
         }
 
-       // printf("DEBUG: InputBuffering func end b1 = %d, %d init b2 = %d, %d init discard = %d, %d\n",
-       //        input_buffer1->x, input_buffer1->y,
-       //        input_buffer2->x, input_buffer2->y,
-       //        discard_buffer->x, discard_buffer->y);
 }
 
 
@@ -220,9 +212,6 @@ int GameLoop()
             // copy input_buffer2 to input_buffer1
             input_buffer1->x = input_buffer2->x;
             input_buffer1->y = input_buffer2->y;
-            //printf("DEBUG: buffer_flush1 (transfer b2 -> b1) b1 = %d, %d b2 = %d, %d\n",
-            //       input_buffer1->x, input_buffer1->y,
-            //       input_buffer2->y, input_buffer2->y);
 
             // clear input_buffer2 if it isn't already empty
             if (input_buffer2->x != I_BUFFER_INIT &&
@@ -269,40 +258,32 @@ int GameLoop()
             {
                 if (has_grown)
                 {
-                   // printf("DEBUG: dir_raw1 dx = %d, dy = %d\n",
-                   //        direction.dx, direction.dy);
                     if (event.key.keysym.sym == SDLK_LEFT &&
                         direction.dx != DIR_RIGHT)
                     {
                         direction.dx = DIR_LEFT;
                         direction.dy = DIR_RESET;
-                    //    printf("DIR_LEFT, ");
                     }
                     if (event.key.keysym.sym == SDLK_RIGHT &&
                         direction.dx != DIR_LEFT)
                     {
                         direction.dx = DIR_RIGHT;
                         direction.dy = DIR_RESET;
-                    //    printf("DIR_RIGHT, ");
                     }
                     if (event.key.keysym.sym == SDLK_UP &&
                         direction.dy != DIR_DOWN)
                     {
                         direction.dy = DIR_UP;
                         direction.dx = DIR_RESET;
-                    //    printf("DIR_UP, ");
                     }
                     if (event.key.keysym.sym == SDLK_DOWN &&
                         direction.dy != DIR_UP)
                     {
                         direction.dy = DIR_DOWN;
                         direction.dx = DIR_RESET;
-                    //    printf("DIR_DOWN, ");
                     }
                     InputBuffering(input_buffer1, input_buffer2,
                                    discard_buffer, direction_pointer);
-                    //printf("DEBUG: dir_raw2 dx = %d, dy = %d\n",
-                    //       direction.dx, direction.dy);
                 }
                 else
                 {
@@ -347,9 +328,6 @@ int GameLoop()
         {
             direction.dx = input_buffer1->x;
             direction.dy = input_buffer1->y;
-            //printf("DEBUG: buffer_flush2 (transfer b1 -> dir) b1 = %d, %d b2 = %d, %d\n",
-            //       input_buffer1->x, input_buffer1->y,
-            //       direction.dx, direction.dy);
             buffer_flush = true;
         }
             else {
