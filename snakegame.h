@@ -10,8 +10,7 @@
 // - Noctilia Grah, 2026
 //
 // DESCRIPTION:
-// Currently just the snake/apple structs.
-// TODO: A lot of this doesn't need to be in structs.
+// Structs, Structs, and more structs.
 //
 
 // I have no idea why i'm doing most of this stuff
@@ -45,6 +44,11 @@ typedef struct Direction
 {
     int dx, dy;
 } Direction;
+
+typedef struct InputBuffer
+{
+    int x, y;
+} InputBuffer;
 
 
 

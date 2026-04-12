@@ -25,6 +25,9 @@
 
 #include "p_user.h"
 
+
+
+
 //
 // DrawSnake
 // TODO: This is probably broken, also move it to a different file
@@ -40,6 +43,9 @@ void DrawSnake(SDL_Surface* window_surface,
 }
 
 }
+
+
+
 
 //
 // ResetApple
@@ -74,7 +80,7 @@ void ResetApple(SnakeElement *snake_pointer,
 
 
 //
-// ResetApple
+// DrawApple
 // TODO: Move to a different file
 //
 void DrawApple(SDL_Surface* window_surface,
@@ -87,32 +93,98 @@ void DrawApple(SDL_Surface* window_surface,
     }
 }
 
+
+
+
+//
+// InputBuffering
+//
+// HACKHACK: pressing L/R at the same time as U/D will often cause the
+// snake to move back into itself if the first input is perpendicular to
+// the current movement axis and if the parallel input is opposite of
+// the current direction. For example, if the snake is moving left and
+// you press right and up/down on the same frame, the snake will go back
+// into itself if the up/down input is registered first and the right
+// input is registered second.
+//
+// The solution? Hold onto the 2nd input a player gives for a certain
+// frame and override the input on the next frame with it, preferably
+// holding onto the new overridden input to use on the next frame as well.
+// Originally I thought this would be a very shoddy method, but it ended
+// up being so elegant that the implementation was pretty much perfect
+// on my first attempt. It even had the side effect of adding proper input
+// buffering, hence the name.
+//
+// This requires some setup in other areas, though, specifically in the
+// game loop, meaning this won't scale up well unless the stuff in those
+// places get moved somewhere else.
+//
+void InputBuffering(InputBuffer *input_buffer1,
+                    InputBuffer *input_buffer2,
+                    InputBuffer *discard_buffer,
+                    Direction *direction_pointer)
+{
+
+    if (input_buffer1->x == I_BUFFER_INIT &&
+        input_buffer1->y == I_BUFFER_INIT)
+        {
+        input_buffer1->x = direction_pointer->dx;
+        input_buffer1->y = direction_pointer->dy;
+        }
+    else if (input_buffer2->x == I_BUFFER_INIT &&
+            input_buffer2->y == I_BUFFER_INIT)
+            {
+        input_buffer2->x = direction_pointer->dx;
+        input_buffer2->y = direction_pointer->dy;
+        }
+    else
+        {
+        discard_buffer->x = direction_pointer->dx;
+        discard_buffer->y = direction_pointer->dy;
+        }
+
+}
+
+
+
+
 //
 // GameLoop
-// TODO: This is horrific
+// TODO: This is horrific!
 //
 int GameLoop()
 {
-    // ugly struct but putting it anywhere else
-    // breaks things, i'll fix it later (never)
-    SnakeElement snake = {INIT_X, INIT_Y, TAIL_INIT_X, TAIL_INIT_Y, NULL};
+    // ugly structs but putting it anywhere else breaks shit
     Direction direction = {0,0}; // x, y
     AppleLocation apple = {0,0}; // x, y
+    SnakeElement snake = {INIT_X, INIT_Y,
+        TAIL_INIT_X, TAIL_INIT_Y,
+        NULL};
 
-    // used for parsing the values within these
-    // structs to functions without using the
-    // structs themselves.
     SnakeElement *snake_pointer = &snake;
     Direction *direction_pointer = &direction;
     AppleLocation *apple_pointer = &apple;
+
+    InputBuffer inpbf1 = {I_BUFFER_INIT,I_BUFFER_INIT};
+    InputBuffer inpbf2 = {I_BUFFER_INIT,I_BUFFER_INIT};
+    InputBuffer inpbfdsc = {I_BUFFER_INIT,I_BUFFER_INIT};
+
+    InputBuffer *input_buffer1 = &inpbf1;
+    InputBuffer *input_buffer2 = &inpbf2;
+    InputBuffer *discard_buffer = &inpbfdsc;
+
+
+    // new_segment prototype because the compiler is retarded
+    SnakeElement *new_segment =
+        (SnakeElement*)malloc(sizeof(SnakeElement));
 
     SDL_Rect override_rect = {0,0,window_width, window_height};
 
     bool is_growing = false;
     bool has_grown = false;
-    bool first_move = true; // for before the snake touches 1st apple
-
     bool gameOn = true;
+    bool buffer_flush = false;
+
 
     // init video, timer (why?) & events
     // make the window
@@ -128,15 +200,37 @@ int GameLoop()
 
     SDL_Surface* window_surface = SDL_GetWindowSurface(window);
 
-    // i don't know why but if it isn't here, everything breaks.
+    // i don't know why but if this isn't here, everything breaks.
     ResetApple(snake_pointer, apple_pointer);
     // MAIN GAME LOOP
     while (gameOn)
     {
+
+        // BUFFER_FLUSH, PART 1
+        if (buffer_flush)
+        {
+            // copy input_buffer2 to input_buffer1
+            input_buffer1->x = input_buffer2->x;
+            input_buffer1->y = input_buffer2->y;
+
+            // clear input_buffer2 if it isn't already empty
+            if (input_buffer2->x != I_BUFFER_INIT &&
+                input_buffer2->y != I_BUFFER_INIT)
+                {
+                input_buffer2->x = I_BUFFER_INIT;
+                input_buffer2->y = I_BUFFER_INIT;
+                }
+        }
+
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT)
+                {
+                free(new_segment);
+                new_segment = NULL;
+
                 gameOn = false;
+                }
 
             // HACKHACK: We need a way to tell if the snake
             // has eaten an apple yet and change the movement
@@ -153,7 +247,7 @@ int GameLoop()
             // If a key for a specific direction is pressed
             // and if the snake isn't going in the opposite
             // direction, set the x/y to the right value and
-            // and reset the perpendicular axis back to its
+            // and reset the perpendicular axis back to the
             // initial value.
             //
             // Secretly, the values for the directions are
@@ -166,28 +260,30 @@ int GameLoop()
                 {
                     if (event.key.keysym.sym == SDLK_LEFT &&
                         direction.dx != DIR_RIGHT)
-                        {
-                            direction.dx = DIR_LEFT;
-                            direction.dy = DIR_RESET;
-                        }
+                    {
+                        direction.dx = DIR_LEFT;
+                        direction.dy = DIR_RESET;
+                    }
                     if (event.key.keysym.sym == SDLK_RIGHT &&
                         direction.dx != DIR_LEFT)
-                        {
-                            direction.dx = DIR_RIGHT;
-                            direction.dy = DIR_RESET;
-                        }
+                    {
+                        direction.dx = DIR_RIGHT;
+                        direction.dy = DIR_RESET;
+                    }
                     if (event.key.keysym.sym == SDLK_UP &&
                         direction.dy != DIR_DOWN)
-                        {
-                            direction.dy = DIR_UP;
-                            direction.dx = DIR_RESET;
-                        }
+                    {
+                        direction.dy = DIR_UP;
+                        direction.dx = DIR_RESET;
+                    }
                     if (event.key.keysym.sym == SDLK_DOWN &&
                         direction.dy != DIR_UP)
-                        {
-                            direction.dy = DIR_DOWN;
-                            direction.dx = DIR_RESET;
-                        }
+                    {
+                        direction.dy = DIR_DOWN;
+                        direction.dx = DIR_RESET;
+                    }
+                    InputBuffering(input_buffer1, input_buffer2,
+                                   discard_buffer, direction_pointer);
                 }
                 else
                 {
@@ -222,13 +318,27 @@ int GameLoop()
             is_growing = true;
             has_grown  = true;
         }
+
+    // BUFFER_FLUSH, PART 2
+    // if input_buffer1 isn't empty, replace dx/dy with the buffer's values
+    // then turn on the buffer_flush flag to drain the values again.
+    // if input_buffer1 is empty, then we're done.
+    if (input_buffer1->x != I_BUFFER_INIT &&
+        input_buffer1->y != I_BUFFER_INIT)
+        {
+            direction.dx = input_buffer1->x;
+            direction.dy = input_buffer1->y;
+            buffer_flush = true;
+        }
+            else {
+                    buffer_flush = false;
+
+                    discard_buffer->x = I_BUFFER_INIT; // reset for safety
+                    discard_buffer->y = I_BUFFER_INIT;
+                 }
     P_MoveSnake(snake_pointer, direction_pointer, is_growing);
 
-    // HACKHACK: Unfortunately, I have to manually set the
-    // is_growing flag to false after it gets set to true so
-    // that it doesn't activate each frame. It's the easiest
-    // way to do this, but I want something better. I don't
-    // know if it's possible, though.
+    // HACKHACK: set the growing to false so it doesn't occur every frame
     is_growing = false;
 
     DrawApple(window_surface, apple_pointer);
