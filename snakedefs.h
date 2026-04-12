@@ -62,4 +62,7 @@
 #define DIR_UP -1
 #define DIR_DOWN 1
 
+#define I_BUFFER_INIT 2 // input buffer init/empty value
+
+
 #endif
