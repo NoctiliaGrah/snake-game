@@ -25,7 +25,7 @@
 #define window_flags 0
 
 // grid defs
-#define cell_size 13
+#define cell_size 80
 #define rows window_height/cell_size
 #define columns window_width/cell_size
 #define line_width 1
@@ -43,10 +43,7 @@
 
 #define TICKRATE 100
 
-// despite these being duplicate values, it's probably
-// better to have both x & y to avoid confusion.
-
-// snake's initial position & direction
+// init snake position & direction
 #define INIT_X 5
 #define INIT_Y 5
 #define TAIL_INIT_X 4

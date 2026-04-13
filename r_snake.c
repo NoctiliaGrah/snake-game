@@ -10,19 +10,30 @@
 // - Noctilia Grah, 2026
 //
 // DESCRIPTION:
-// Main render stuff
+// Snake rendering
 //
 
-#ifndef __R_MAIN__
-#define __R_MAIN__
+#include <stdio.h> // used for printing to console
+#include <SDL2/SDL.h> // graphics/sound/input library
+
+#include "snakegame.h"
+#include "snakedefs.h"
+
+#include "r_main.h"
 
 
 
 
-int R_DrawGrid(SDL_Surface* window_surface);
+//
+// R_DrawSnake
+//
+void R_DrawSnake(SDL_Surface* window_surface, SnakeElement* snake)
+{
+    if (snake != NULL)
+    {
+        SNAKE(snake->x, snake->y);
+        R_DrawSnake(window_surface,
+                    snake->next_element);
+    }
 
-void R_FillCell(SDL_Surface* window_surface, int x, int y, Uint32 color);
-
-
-
-#endif
+}

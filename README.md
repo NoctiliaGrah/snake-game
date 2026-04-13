@@ -2,10 +2,8 @@
 A very unfinished version of Snake written in C using SDL2 for graphics.
 
 TODO:
-- Fix the apple respawn code to also check if it intersects any of the new snake segments.
+- Snake collision with self/walls
 - Implement a proper tick system so the movement speed isn't tied to the frame rate.
-- Move the fuctions for drawing the snake & the apple on-screen into their own individual files.
-
 # Building
 This requires SDL2, instructions on how to install it can be found here:
 
