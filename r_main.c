@@ -47,7 +47,6 @@ int R_DrawGrid(SDL_Surface* window_surface)
 
 //
 // R_FillCell
-// I don't know why this is a function and I don't know a better way.
 //
 void R_FillCell(SDL_Surface* window_surface, int x, int y, Uint32 color)
 {
