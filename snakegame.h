@@ -10,13 +10,9 @@
 // - Noctilia Grah, 2026
 //
 // DESCRIPTION:
-// Currently just the snake/apple structs.
-// TODO: A lot of this doesn't need to be in structs.
+// Structs, Structs, and more structs. Most of this stuff
+// probably doesn't need to be in structs. Oh well!
 //
-
-// I have no idea why i'm doing most of this stuff
-// like this, if you're using this as a reference,
-// use something better.
 
 #ifndef __SNAKEGAME__
 #define __SNAKEGAME__
@@ -46,8 +42,13 @@ typedef struct Direction
     int dx, dy;
 } Direction;
 
+typedef struct InputBuffer
+{
+    int x, y;
+} InputBuffer;
 
-
+// flags
 extern bool is_growing;
+extern bool buffer_flush_flag;
 
 #endif

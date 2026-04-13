@@ -10,18 +10,14 @@
 // - Noctilia Grah, 2026
 //
 // DESCRIPTION:
-// Main render stuff
+// Snake rendering
 //
 
-#ifndef __R_MAIN__
-#define __R_MAIN__
+#ifndef __P_APPLE__
+#define __P_APPLE__
 
 
-
-
-int R_DrawGrid(SDL_Surface* window_surface);
-
-void R_FillCell(SDL_Surface* window_surface, int x, int y, Uint32 color);
+void P_ResetApple(SnakeElement *snake_pointer, Apple *apple_pointer);
 
 
 
