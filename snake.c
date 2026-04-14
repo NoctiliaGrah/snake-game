@@ -1,16 +1,11 @@
-// Most of this is taken from various tutorials on YouTube that
-// were modified to fit whatever I needed from it. It's very
-// likely that this code will no longer be maintained or
-// compile in [CURRENT YEAR], so take this more as a learning
-// thing rather than something serious.
 //
 // Requires SDL2 to compile, installation instructions here:
 // https://wiki.libsdl.org/SDL2/Installation
 //
-// - Noctilia Grah, 2026
+// Noctilia Grah, 2026
 //
 // DESCRIPTION:
-// Main code, keyboard inputs, game loop, etc
+// Game loop, misc functions, etc.
 //
 
 #include <stdio.h> // used for printing to console
@@ -30,21 +25,19 @@
 
 
 
-
 //
 // GameLoop
 // TODO: This is horrific!
 //
-int GameLoop()
+void GameLoop()
 {
-// ugly structs but putting them anywhere else breaks shit
 Direction direction = {0, 0}; // x, y
-AppleLocation apple = {0, 0}; // x, y
+Apple apple = {0, 0, NULL}; // x, y, next_element
 SnakeElement snake = {INIT_X, INIT_Y, TAIL_INIT_X, TAIL_INIT_Y, NULL};
 
-SnakeElement *snake_pointer = &snake;
 Direction *direction_pointer = &direction;
 AppleLocation *apple_pointer = &apple;
+SnakeElement *snake_pointer = &snake;
 
 InputBuffer inpbf1 = {I_BUFFER_INIT,I_BUFFER_INIT};
 InputBuffer inpbf2 = {I_BUFFER_INIT,I_BUFFER_INIT};
@@ -59,20 +52,16 @@ SDL_Rect override_rect = {0,0,window_width, window_height};
 SnakeElement *new_segment =                  // new_segment prototype because
 (SnakeElement*)malloc(sizeof(SnakeElement)); // the compiler is retarded
 
-
-
-
 bool is_growing = false;
 bool has_grown = false;
-bool gameOn = true;
+bool game_on = true;
 bool buffer_flush_flag = false;
-
 
 // video & event init
 SDL_Init(SDL_INIT_VIDEO || SDL_INIT_TIMER);
 SDL_Event event;
 SDL_Window* window =
-SDL_CreateWindow("Classic Snake",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
+SDL_CreateWindow("Snake",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,
                  window_width,window_height,window_flags);
 SDL_Surface* window_surface = SDL_GetWindowSurface(window);
 
@@ -80,11 +69,7 @@ SDL_Surface* window_surface = SDL_GetWindowSurface(window);
 // isn't here, everything breaks
 P_ResetApple(snake_pointer, apple_pointer);
 
-
-
-
-
-    while (gameOn)
+    while (game_on)
     {
 
         P_FlushBuffers1(input_buffer1, input_buffer2, &buffer_flush_flag);
@@ -92,17 +77,18 @@ P_ResetApple(snake_pointer, apple_pointer);
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT)
-            {
-                free(new_segment);
-                new_segment = NULL;
+                {
+                    free(new_segment);
+                    new_segment = NULL;
 
-                gameOn = false;
-            }
+                    game_on = false;
+                }
+
+
             if (event.type == SDL_KEYDOWN)
             {
-                // I tried to move this to it's own function.
-                // It did not work.
-                // I know why. But I don't care to try again.
+
+                // TODO: Move this to it's own file
 
                 //printf("DEBUG: P_ProcessInput Start\n");
 
@@ -194,10 +180,9 @@ P_ResetApple(snake_pointer, apple_pointer);
                 }
             }
         }
-
-        // screen blank
+        // clear the screen and render everthing
         SDL_FillRect(window_surface, &override_rect, COLOR_BLACK);
-        // if the snake eats the apple spawn the apple at a new pos
+
         if (snake_pointer->x == apple.x && snake_pointer->y == apple.y)
             {
                 P_ResetApple(snake_pointer, apple_pointer);
@@ -205,23 +190,25 @@ P_ResetApple(snake_pointer, apple_pointer);
                 has_grown  = true;
             }
 
-        // flush buffers 2 then move snake
+
         P_FlushBuffers2(input_buffer1, discard_buffer,
                         direction_pointer, &buffer_flush_flag);
         P_MoveSnake(snake_pointer, direction_pointer, is_growing);
 
-        // HACKHACK: set the growing to false so it doesn't occur every frame
+        // HACKHACK: only here so it isn't true every frame
         is_growing = false;
+
+        P_Collide(snake_pointer, &game_on);
 
         R_DrawApple(window_surface, apple_pointer);
         R_DrawSnake(window_surface, &snake);
         R_DrawGrid(window_surface);
-
         SDL_UpdateWindowSurface(window);
+
         SDL_Delay(TICKRATE);
         }
-}
 
+}
 
 int main()
 {
@@ -229,4 +216,6 @@ int main()
     printf("Hello Snake!\n");
 
     GameLoop();
+    return 0;
 }
+

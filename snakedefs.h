@@ -1,13 +1,8 @@
-// Most of this is taken from various tutorials on YouTube that
-// were modified to fit whatever I needed from it. It's very
-// likely that this code will no longer be maintained or
-// compile in [CURRENT YEAR], so take this more as a learning
-// thing rather than something serious.
 //
 // Requires SDL2 to compile, installation instructions here:
 // https://wiki.libsdl.org/SDL2/Installation
 //
-// - Noctilia Grah, 2026
+// Noctilia Grah, 2026
 //
 // DESCRIPTION:
 // Defines
@@ -16,19 +11,19 @@
 #ifndef __SNAKEDEFS__
 #define __SNAKEDEFS__
 
+#include "snakegame.h"
 
 
-
-// window defs
+// window
 #define window_width 640
 #define window_height 480
 #define window_flags 0
-
-// grid defs
-#define cell_size 80
-#define rows window_height/cell_size
-#define columns window_width/cell_size
+// cells
+#define cell_size 40
 #define line_width 1
+
+#define ROW window_width/cell_size
+#define COLUMN window_height/cell_size
 
 // colors
 #define GRID_COLOR 0x1f1f1f1f
@@ -40,6 +35,7 @@
 // game specific defines
 #define SNAKE(x,y) R_FillCell(window_surface,x,y,COLOR_WHITE)
 #define APPLE(x,y) R_FillCell(window_surface,x,y,COLOR_RED)
+
 
 #define TICKRATE 100
 
@@ -60,6 +56,10 @@
 #define DIR_DOWN 1
 
 #define I_BUFFER_INIT 2 // input buffer init/empty value
+
+
+
+
 
 
 #endif
