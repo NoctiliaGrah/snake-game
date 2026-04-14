@@ -63,8 +63,6 @@ void P_MoveSnake(SnakeElement *head,
 
     if (is_growing == true)
     {
-        //printf("is_growing, memory allocated\n"); // old debug code
-        // allocate memory for the new segment
         SnakeElement *new_segment =
         (SnakeElement*)malloc(sizeof(SnakeElement));
 
@@ -96,7 +94,7 @@ void P_Collide(SnakeElement *head, bool *game_on)
 
 SnakeElement *current_node = head->next_element;
 
-        // check for wall collision
+    // check for wall collision
     if(head->x > ROW || head->y > COLUMN ||
        head->x < 0 || head->y < 0)
         {
@@ -160,11 +158,6 @@ void P_InputBuffers(InputBuffer *input_buffer1,
                     Direction *direction_pointer)
 {
 
-// printf("DEBUG: InputBuffering func start b1 = %d, %d init b2 = %d, %d init discard = %d, %d\n",
-//        input_buffer1->x, input_buffer1->y,
-//        input_buffer2->x, input_buffer2->y,
-//        discard_buffer->x, discard_buffer->y);
-
     if (input_buffer1->x == I_BUFFER_INIT &&
         input_buffer1->y == I_BUFFER_INIT)
     {
@@ -183,11 +176,6 @@ void P_InputBuffers(InputBuffer *input_buffer1,
         discard_buffer->y = direction_pointer->dy;
     }
 
-//  printf("DEBUG: InputBuffering func end b1 = %d, %d init b2 = %d, %d init discard = %d, %d\n",
-//         input_buffer1->x, input_buffer1->y,
-//         input_buffer2->x, input_buffer2->y,
-//         discard_buffer->x, discard_buffer->y);
-
 }
 
 
@@ -198,18 +186,12 @@ void P_FlushBuffers1(InputBuffer *input_buffer1,
                      InputBuffer *input_buffer2,
                      bool *buffer_flush_flag)
 {
-     //printf("DEBUG: buffer_flush1 buffer_flush_flag");
-
-        // BUFFER_FLUSH, PART 1
-        // copy input_buffer2 to input_buffer1
+     // copy input_buffer2 to input_buffer1
      if (*buffer_flush_flag)
         {
         input_buffer1->x = input_buffer2->x;
         input_buffer1->y = input_buffer2->y;
         }
-       // printf("DEBUG: buffer_flush1 (transfer b2 -> b1) b1 = %d, %d b2 = %d, %d\n",
-       //        input_buffer1->x, input_buffer1->y,
-       //        input_buffer2->y, input_buffer2->y);
 
         // clear input_buffer2 if it isn't already empty
         if (input_buffer2->x != I_BUFFER_INIT &&
@@ -237,10 +219,6 @@ void P_FlushBuffers2(InputBuffer *input_buffer1,
         direction_pointer->dy = input_buffer1->y;
 
         (*buffer_flush_flag) = true;
-
-        //printf("DEBUG: buffer_flush2 (transfer b1 -> dir) b1 = %d, %d b2 = %d, %d\n",
-        //       input_buffer1->x, input_buffer1->y,
-        //       direction_pointer->dx, direction_pointer->dy);
         }
     else {
          (*buffer_flush_flag) = false;
