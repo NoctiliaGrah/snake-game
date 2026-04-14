@@ -1,13 +1,11 @@
-// Most of this is taken from various tutorials on YouTube that
-// were modified to fit whatever I needed from it. It's very
-// likely that this code will no longer be maintained or
-// compile in [CURRENT YEAR], so take this more as a learning
-// thing rather than something serious.
 //
 // Requires SDL2 to compile, installation instructions here:
 // https://wiki.libsdl.org/SDL2/Installation
 //
-// - Noctilia Grah, 2026
+// Noctilia Grah, 2026
+//
+// DESCRIPTION:
+// Snake movement code
 //
 // DESCRIPTION:
 // Main render functions.
@@ -17,17 +15,17 @@
 #include <SDL2/SDL.h> // low-level graphics/sound/input library
 
 #include "snakedefs.h"
-
+#include "snakegame.h"
 
 
 
 //
 // R_DrawGrid
 //
-int R_DrawGrid(SDL_Surface* window_surface)
+void R_DrawGrid(SDL_Surface* window_surface)
 {
     // x, y, width, height
-    SDL_Rect row_line = {0,0,640,line_width};
+    SDL_Rect row_line = {0,0,window_width,line_width};
     SDL_Rect column_line = {0,0,line_width,window_height};
 
     for (row_line.y = 0;
@@ -41,9 +39,6 @@ int R_DrawGrid(SDL_Surface* window_surface)
          SDL_FillRect(window_surface, &column_line, GRID_COLOR);
 
 }
-
-
-
 
 //
 // R_FillCell

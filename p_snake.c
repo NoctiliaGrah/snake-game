@@ -1,13 +1,8 @@
-// Most of this is taken from various tutorials on YouTube that
-// were modified to fit whatever I needed from it. It's very
-// likely that this code will no longer be maintained or
-// compile in [CURRENT YEAR], so take this more as a learning
-// thing rather than something serious.
 //
 // Requires SDL2 to compile, installation instructions here:
 // https://wiki.libsdl.org/SDL2/Installation
 //
-// - Noctilia Grah, 2026
+// Noctilia Grah, 2026
 //
 // DESCRIPTION:
 // Snake movement code
@@ -20,9 +15,11 @@
 #include "snakegame.h"
 #include "snakedefs.h"
 
+#include "p_snake.h"
+
 //
 // P_MoveSnake
-// I genuinely have no idea what this is doing
+// I only kinda know what this is doing
 //
 void P_MoveSnake(SnakeElement *head,
                  Direction *direction_pointer,
@@ -66,8 +63,6 @@ void P_MoveSnake(SnakeElement *head,
 
     if (is_growing == true)
     {
-        //printf("is_growing, memory allocated\n"); // old debug code
-        // allocate memory for the new segment
         SnakeElement *new_segment =
         (SnakeElement*)malloc(sizeof(SnakeElement));
 
@@ -85,6 +80,54 @@ void P_MoveSnake(SnakeElement *head,
         }
     }
 }
+
+
+
+
+//
+// P_Collide
+// Death stuff, will change eventually
+// TODO: This is incredibly inefficient
+//
+void P_Collide(SnakeElement *head, bool *game_on)
+{
+
+SnakeElement *current_node = head->next_element;
+
+    // check for wall collision
+    if(head->x > ROW || head->y > COLUMN ||
+       head->x < 0 || head->y < 0)
+        {
+            printf("Game over.\n");
+            SDL_Delay(1000); // 1 second
+            *game_on = false;
+            SDL_Quit();
+        }
+
+    // check for self collision
+    while (current_node != NULL)
+        {
+        if (current_node->x == head->x &&
+            current_node->y == head->y)
+            {
+                printf("Game over.\n");
+                SDL_Delay(1000); // 1 second
+                *game_on = false;
+                SDL_Quit();
+            }
+
+            current_node = current_node->next_element;
+        }
+}
+
+
+
+
+
+
+//=================================================================
+
+// L/R U/D input bug fix  //  input buffering implementation
 
 //
 // P_InputBuffers
@@ -115,11 +158,6 @@ void P_InputBuffers(InputBuffer *input_buffer1,
                     Direction *direction_pointer)
 {
 
-   // printf("DEBUG: InputBuffering func start b1 = %d, %d init b2 = %d, %d init discard = %d, %d\n",
-   //        input_buffer1->x, input_buffer1->y,
-   //        input_buffer2->x, input_buffer2->y,
-   //        discard_buffer->x, discard_buffer->y);
-
     if (input_buffer1->x == I_BUFFER_INIT &&
         input_buffer1->y == I_BUFFER_INIT)
     {
@@ -127,7 +165,7 @@ void P_InputBuffers(InputBuffer *input_buffer1,
         input_buffer1->y = direction_pointer->dy;
     }
     else if (input_buffer2->x == I_BUFFER_INIT &&
-             input_buffer2->y == I_BUFFER_INIT)
+        input_buffer2->y == I_BUFFER_INIT)
     {
         input_buffer2->x = direction_pointer->dx;
         input_buffer2->y = direction_pointer->dy;
@@ -138,28 +176,22 @@ void P_InputBuffers(InputBuffer *input_buffer1,
         discard_buffer->y = direction_pointer->dy;
     }
 
-   //  printf("DEBUG: InputBuffering func end b1 = %d, %d init b2 = %d, %d init discard = %d, %d\n",
-   //         input_buffer1->x, input_buffer1->y,
-   //         input_buffer2->x, input_buffer2->y,
-   //         discard_buffer->x, discard_buffer->y);
-
 }
 
+
+//
+// P_FlushBuffers1
+//
 void P_FlushBuffers1(InputBuffer *input_buffer1,
                      InputBuffer *input_buffer2,
                      bool *buffer_flush_flag)
 {
-     //printf("DEBUG: buffer_flush1 buffer_flush_flag");
-
-        // BUFFER_FLUSH, PART 1
-        // copy input_buffer2 to input_buffer1
+     // copy input_buffer2 to input_buffer1
      if (*buffer_flush_flag)
+        {
         input_buffer1->x = input_buffer2->x;
         input_buffer1->y = input_buffer2->y;
-
-       // printf("DEBUG: buffer_flush1 (transfer b2 -> b1) b1 = %d, %d b2 = %d, %d\n",
-       //        input_buffer1->x, input_buffer1->y,
-       //        input_buffer2->y, input_buffer2->y);
+        }
 
         // clear input_buffer2 if it isn't already empty
         if (input_buffer2->x != I_BUFFER_INIT &&
@@ -170,6 +202,11 @@ void P_FlushBuffers1(InputBuffer *input_buffer1,
         }
 }
 
+
+
+//
+// P_FlushBuffers2
+//
 void P_FlushBuffers2(InputBuffer *input_buffer1,
                      InputBuffer *discard_buffer,
                      Direction *direction_pointer,
@@ -182,15 +219,10 @@ void P_FlushBuffers2(InputBuffer *input_buffer1,
         direction_pointer->dy = input_buffer1->y;
 
         (*buffer_flush_flag) = true;
-
-        //printf("DEBUG: buffer_flush2 (transfer b1 -> dir) b1 = %d, %d b2 = %d, %d\n",
-        //       input_buffer1->x, input_buffer1->y,
-        //       direction_pointer->dx, direction_pointer->dy);
-
         }
     else {
-            (*buffer_flush_flag) = false;
-            discard_buffer->x = I_BUFFER_INIT; // reset for safety
-            discard_buffer->y = I_BUFFER_INIT;
-            }
+         (*buffer_flush_flag) = false;
+         discard_buffer->x = I_BUFFER_INIT; // reset for safety
+         discard_buffer->y = I_BUFFER_INIT;
+         }
 }
