@@ -1,5 +1,5 @@
 # snake-game
-A very unfinished version of Snake written in C using SDL2 for graphics.
+A version of Snake written in C using SDL2 for graphics.
 
 TODO:
 - Game restart
