@@ -140,6 +140,7 @@ P_ResetApple(snake_pointer, apple_pointer);
                     }
                     P_InputBuffers(input_buffer1, input_buffer2,
                                    discard_buffer, direction_pointer);
+                }
                 else
                 {
                     direction_pointer->dx = DIR_RESET;
