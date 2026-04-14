@@ -90,8 +90,6 @@ P_ResetApple(snake_pointer, apple_pointer);
 
                 // TODO: Move this to it's own file
 
-                //printf("DEBUG: P_ProcessInput Start\n");
-
                 // HACKHACK: We need a way to tell if the snake
                 // has eaten an apple yet and change the movement
                 // to be free or locked accordingly. This is the
@@ -116,66 +114,51 @@ P_ResetApple(snake_pointer, apple_pointer);
 
                 if (has_grown)
                 {
-                    //printf("DEBUG: has_grown dir_raw1 dx = %d, dy = %d\n",
-                    //       direction_pointer->dx, direction_pointer->dy);
                     if (event.key.keysym.sym == SDLK_LEFT &&
                         direction.dx != DIR_RIGHT)
                     {
                         direction.dx = DIR_LEFT;
                         direction.dy = DIR_RESET;
-                        //        printf("DIR_LEFT, ");
                     }
                     if (event.key.keysym.sym == SDLK_RIGHT &&
                         direction.dx != DIR_LEFT)
                     {
                         direction.dx = DIR_RIGHT;
                         direction.dy = DIR_RESET;
-                        //        printf("DIR_RIGHT, ");
                     }
                     if (event.key.keysym.sym == SDLK_UP &&
                         direction.dy != DIR_DOWN)
                     {
                         direction.dy = DIR_UP;
                         direction.dx = DIR_RESET;
-                        //        printf("DIR_UP, ");
                     }
                     if (event.key.keysym.sym == SDLK_DOWN &&
                         direction.dy != DIR_UP)
                     {
                         direction.dy = DIR_DOWN;
                         direction.dx = DIR_RESET;
-                        //        printf("DIR_DOWN, ");
                     }
                     P_InputBuffers(input_buffer1, input_buffer2,
                                    discard_buffer, direction_pointer);
-                    //printf("DEBUG: has_grown dir_raw2 dx = %d, dy = %d\n",
-                    //       direction_pointer->dx,
-                    //         direction_pointer->dy);
-                }
                 else
                 {
-                    //printf("DEBUG: oneblock input Start\n");
                     direction_pointer->dx = DIR_RESET;
                     direction_pointer->dy = DIR_RESET;
                     if (event.key.keysym.sym == SDLK_LEFT)
                     {
                         direction_pointer->dx = DIR_LEFT;
-                    //    printf("DEBUG: oneblock input DIR_LEFT\n");
                     }
                     if (event.key.keysym.sym == SDLK_RIGHT)
                     {
                         direction_pointer->dx = DIR_RIGHT;
-                    //    printf("DEBUG: oneblock input DIR_RIGHT\n");
                     }
                     if (event.key.keysym.sym == SDLK_UP)
                     {
                         direction_pointer->dy = DIR_UP;
-                    //    printf("DEBUG: oneblock input DIR_UP\n");
                     }
                     if (event.key.keysym.sym == SDLK_DOWN)
                     {
                         direction_pointer->dy = DIR_DOWN;
-                    //    printf("DEBUG: oneblock input DIR_DOWN\n");
                     }
                 }
             }
