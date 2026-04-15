@@ -40,8 +40,8 @@
 #define TICKRATE 100
 
 // init snake position & direction
-#define INIT_X 5
-#define INIT_Y 5
+#define INIT_X 4
+#define INIT_Y 4
 #define TAIL_INIT_X 4
 #define TAIL_INIT_Y 4
 #define DIR_RESET 0
