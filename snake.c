@@ -5,7 +5,7 @@
 // Noctilia Grah, 2026
 //
 // DESCRIPTION:
-// Game loop, misc functions, etc.
+// Game loop.
 //
 
 #include <stdio.h> // used for printing to console
@@ -50,7 +50,7 @@ InputBuffer *discard_buffer = &inpbfdsc;
 SDL_Rect override_rect = {0,0,window_width, window_height};
 
 SnakeElement *new_segment =                  // new_segment prototype because
-(SnakeElement*)malloc(sizeof(SnakeElement)); // the compiler is retarded
+(SnakeElement*)malloc(sizeof(SnakeElement)); // the compiler is braindead
 
 bool is_growing = false;
 bool has_grown = false;
@@ -88,9 +88,7 @@ P_ResetApple(snake_pointer, apple_pointer);
             if (event.type == SDL_KEYDOWN)
             {
 
-                // TODO: Move this to it's own file
-
-                //printf("DEBUG: P_ProcessInput Start\n");
+                // TODO: Move this to its own file
 
                 // HACKHACK: We need a way to tell if the snake
                 // has eaten an apple yet and change the movement
@@ -116,72 +114,57 @@ P_ResetApple(snake_pointer, apple_pointer);
 
                 if (has_grown)
                 {
-                    //printf("DEBUG: has_grown dir_raw1 dx = %d, dy = %d\n",
-                    //       direction_pointer->dx, direction_pointer->dy);
                     if (event.key.keysym.sym == SDLK_LEFT &&
                         direction.dx != DIR_RIGHT)
                     {
                         direction.dx = DIR_LEFT;
                         direction.dy = DIR_RESET;
-                        //        printf("DIR_LEFT, ");
                     }
                     if (event.key.keysym.sym == SDLK_RIGHT &&
                         direction.dx != DIR_LEFT)
                     {
                         direction.dx = DIR_RIGHT;
                         direction.dy = DIR_RESET;
-                        //        printf("DIR_RIGHT, ");
                     }
                     if (event.key.keysym.sym == SDLK_UP &&
                         direction.dy != DIR_DOWN)
                     {
                         direction.dy = DIR_UP;
                         direction.dx = DIR_RESET;
-                        //        printf("DIR_UP, ");
                     }
                     if (event.key.keysym.sym == SDLK_DOWN &&
                         direction.dy != DIR_UP)
                     {
                         direction.dy = DIR_DOWN;
                         direction.dx = DIR_RESET;
-                        //        printf("DIR_DOWN, ");
                     }
                     P_InputBuffers(input_buffer1, input_buffer2,
                                    discard_buffer, direction_pointer);
-                    //printf("DEBUG: has_grown dir_raw2 dx = %d, dy = %d\n",
-                    //       direction_pointer->dx,
-                    //         direction_pointer->dy);
                 }
                 else
                 {
-                    //printf("DEBUG: oneblock input Start\n");
                     direction_pointer->dx = DIR_RESET;
                     direction_pointer->dy = DIR_RESET;
                     if (event.key.keysym.sym == SDLK_LEFT)
                     {
                         direction_pointer->dx = DIR_LEFT;
-                    //    printf("DEBUG: oneblock input DIR_LEFT\n");
                     }
                     if (event.key.keysym.sym == SDLK_RIGHT)
                     {
                         direction_pointer->dx = DIR_RIGHT;
-                    //    printf("DEBUG: oneblock input DIR_RIGHT\n");
                     }
                     if (event.key.keysym.sym == SDLK_UP)
                     {
                         direction_pointer->dy = DIR_UP;
-                    //    printf("DEBUG: oneblock input DIR_UP\n");
                     }
                     if (event.key.keysym.sym == SDLK_DOWN)
                     {
                         direction_pointer->dy = DIR_DOWN;
-                    //    printf("DEBUG: oneblock input DIR_DOWN\n");
                     }
                 }
             }
         }
-        // clear the screen and render everthing
-        SDL_FillRect(window_surface, &override_rect, COLOR_BLACK);
+        
 
         if (snake_pointer->x == apple.x && snake_pointer->y == apple.y)
             {
@@ -193,13 +176,15 @@ P_ResetApple(snake_pointer, apple_pointer);
 
         P_FlushBuffers2(input_buffer1, discard_buffer,
                         direction_pointer, &buffer_flush_flag);
+        P_Collide(snake_pointer, &game_on);
         P_MoveSnake(snake_pointer, direction_pointer, is_growing);
 
         // HACKHACK: only here so it isn't true every frame
         is_growing = false;
 
-        P_Collide(snake_pointer, &game_on);
-
+        // clear the screen and render everthing
+        SDL_FillRect(window_surface, &override_rect, COLOR_BLACK);
+      
         R_DrawApple(window_surface, apple_pointer);
         R_DrawSnake(window_surface, &snake);
         R_DrawGrid(window_surface);
