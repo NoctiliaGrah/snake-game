@@ -5,7 +5,7 @@
 // Noctilia Grah, 2026
 //
 // DESCRIPTION:
-// Game loop, misc functions, etc.
+// Game loop.
 //
 
 #include <stdio.h> // used for printing to console
