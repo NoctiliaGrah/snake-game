@@ -66,8 +66,6 @@ void P_MoveSnake(SnakeElement *head,
 
     if (is_growing == true)
     {
-        //printf("is_growing, memory allocated\n"); // old debug code
-        // allocate memory for the new segment
         SnakeElement *new_segment =
         (SnakeElement*)malloc(sizeof(SnakeElement));
 
@@ -168,18 +166,13 @@ void P_InputBuffers(InputBuffer *input_buffer1,
                     InputBuffer *discard_buffer,
                     Direction *direction_pointer)
 {
-
-// printf("DEBUG: InputBuffering func start b1 = %d, %d init b2 = %d, %d init discard = %d, %d\n",
-//        input_buffer1->x, input_buffer1->y,
-//        input_buffer2->x, input_buffer2->y,
-//        discard_buffer->x, discard_buffer->y);
-
     if (input_buffer1->x == I_BUFFER_INIT &&
         input_buffer1->y == I_BUFFER_INIT)
     {
         input_buffer1->x = direction_pointer->dx;
         input_buffer1->y = direction_pointer->dy;
-    }
+    }1
+3
     else if (input_buffer2->x == I_BUFFER_INIT &&
         input_buffer2->y == I_BUFFER_INIT)
     {
@@ -191,12 +184,6 @@ void P_InputBuffers(InputBuffer *input_buffer1,
         discard_buffer->x = direction_pointer->dx;
         discard_buffer->y = direction_pointer->dy;
     }
-
-//  printf("DEBUG: InputBuffering func end b1 = %d, %d init b2 = %d, %d init discard = %d, %d\n",
-//         input_buffer1->x, input_buffer1->y,
-//         input_buffer2->x, input_buffer2->y,
-//         discard_buffer->x, discard_buffer->y);
-
 }
 
 
@@ -207,18 +194,11 @@ void P_FlushBuffers1(InputBuffer *input_buffer1,
                      InputBuffer *input_buffer2,
                      bool *buffer_flush_flag)
 {
-     //printf("DEBUG: buffer_flush1 buffer_flush_flag");
-
-        // BUFFER_FLUSH, PART 1
-        // copy input_buffer2 to input_buffer1
      if (*buffer_flush_flag)
         {
         input_buffer1->x = input_buffer2->x;
         input_buffer1->y = input_buffer2->y;
         }
-       // printf("DEBUG: buffer_flush1 (transfer b2 -> b1) b1 = %d, %d b2 = %d, %d\n",
-       //        input_buffer1->x, input_buffer1->y,
-       //        input_buffer2->y, input_buffer2->y);
 
         // clear input_buffer2 if it isn't already empty
         if (input_buffer2->x != I_BUFFER_INIT &&
@@ -241,15 +221,12 @@ void P_FlushBuffers2(InputBuffer *input_buffer1,
 {
     if (input_buffer1->x != I_BUFFER_INIT &&
         input_buffer1->y != I_BUFFER_INIT)
-        {
+        {1
+3
         direction_pointer->dx = input_buffer1->x;
         direction_pointer->dy = input_buffer1->y;
 
         (*buffer_flush_flag) = true;
-
-        //printf("DEBUG: buffer_flush2 (transfer b1 -> dir) b1 = %d, %d b2 = %d, %d\n",
-        //       input_buffer1->x, input_buffer1->y,
-        //       direction_pointer->dx, direction_pointer->dy);
         }
     else {
          (*buffer_flush_flag) = false;
@@ -260,7 +237,8 @@ void P_FlushBuffers2(InputBuffer *input_buffer1,
 
 
 
-
+1
+3
 //=================================================================
 
 
@@ -320,66 +298,52 @@ SDL_Event event;
 
             if (has_grown)
             {
-                //printf("DEBUG: has_grown dir_raw1 dx = %d, dy = %d\n",
-                //       direction_pointer->dx, direction_pointer->dy);
                 if (event.key.keysym.sym == SDLK_LEFT &&
                     direction_pointer->dx != DIR_RIGHT)
                 {
                     direction_pointer->dx = DIR_LEFT;
                     direction_pointer->dy = DIR_RESET;
-                    //        printf("DIR_LEFT, ");
                 }
                 if (event.key.keysym.sym == SDLK_RIGHT &&
                     direction_pointer->dx != DIR_LEFT)
                 {
                     direction_pointer->dx = DIR_RIGHT;
                     direction_pointer->dy = DIR_RESET;
-                    //        printf("DIR_RIGHT, ");
                 }
                 if (event.key.keysym.sym == SDLK_UP &&
                     direction_pointer->dy != DIR_DOWN)
                 {
                     direction_pointer->dy = DIR_UP;
                     direction_pointer->dx = DIR_RESET;
-                    //        printf("DIR_UP, ");
                 }
                 if (event.key.keysym.sym == SDLK_DOWN &&
                     direction_pointer->dy != DIR_UP)
                 {
                     direction_pointer->dy = DIR_DOWN;
                     direction_pointer->dx = DIR_RESET;
-                    //        printf("DIR_DOWN, ");
                 }
                 P_InputBuffers(input_buffer1, input_buffer2,
                                discard_buffer, direction_pointer);
-                //printf("DEBUG: has_grown dir_raw2 dx = %d, dy = %d\n",
-                //       direction_pointer->dx,
-                //         direction_pointer->dy);
             }
             else
             {
-                //printf("DEBUG: oneblock input Start\n");
                 direction_pointer->dx = DIR_RESET;
                 direction_pointer->dy = DIR_RESET;
                 if (event.key.keysym.sym == SDLK_LEFT)
                 {
                     direction_pointer->dx = DIR_LEFT;
-                    //    printf("DEBUG: oneblock input DIR_LEFT\n");
                 }
                 if (event.key.keysym.sym == SDLK_RIGHT)
                 {
                     direction_pointer->dx = DIR_RIGHT;
-                    //    printf("DEBUG: oneblock input DIR_RIGHT\n");
                 }
                 if (event.key.keysym.sym == SDLK_UP)
                 {
                     direction_pointer->dy = DIR_UP;
-                    //    printf("DEBUG: oneblock input DIR_UP\n");
                 }
                 if (event.key.keysym.sym == SDLK_DOWN)
                 {
                     direction_pointer->dy = DIR_DOWN;
-                    //    printf("DEBUG: oneblock input DIR_DOWN\n");
                 }
             }
         }
