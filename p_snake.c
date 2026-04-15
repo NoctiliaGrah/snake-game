@@ -37,7 +37,7 @@ void P_MoveSnake(SnakeElement *head,
 
     SnakeElement *current = head->next_element;
 
-    int temp_x = head->last_x; //the last place the head was
+    int temp_x = head->last_x;
     int temp_y = head->last_y;
 
     // pointer to the last node
