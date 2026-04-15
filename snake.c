@@ -88,7 +88,7 @@ P_ResetApple(snake_pointer, apple_pointer);
             if (event.type == SDL_KEYDOWN)
             {
 
-                // TODO: Move this to it's own file
+                // TODO: Move this to its own file
 
                 // HACKHACK: We need a way to tell if the snake
                 // has eaten an apple yet and change the movement
