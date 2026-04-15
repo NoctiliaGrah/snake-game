@@ -164,8 +164,7 @@ P_ResetApple(snake_pointer, apple_pointer);
                 }
             }
         }
-        // clear the screen and render everthing
-        SDL_FillRect(window_surface, &override_rect, COLOR_BLACK);
+        
 
         if (snake_pointer->x == apple.x && snake_pointer->y == apple.y)
             {
@@ -177,13 +176,15 @@ P_ResetApple(snake_pointer, apple_pointer);
 
         P_FlushBuffers2(input_buffer1, discard_buffer,
                         direction_pointer, &buffer_flush_flag);
+        P_Collide(snake_pointer, &game_on);
         P_MoveSnake(snake_pointer, direction_pointer, is_growing);
 
         // HACKHACK: only here so it isn't true every frame
         is_growing = false;
 
-        P_Collide(snake_pointer, &game_on);
-
+        // clear the screen and render everthing
+        SDL_FillRect(window_surface, &override_rect, COLOR_BLACK);
+      
         R_DrawApple(window_surface, apple_pointer);
         R_DrawSnake(window_surface, &snake);
         R_DrawGrid(window_surface);
