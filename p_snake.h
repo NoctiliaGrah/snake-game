@@ -15,7 +15,7 @@
 void P_MoveSnake(SnakeElement *snake_pointer, Direction *direction_pointer,
                  bool is_growing);
 
-void P_Collide(SnakeElement *snake_pointer, bool *game_on_pointer);
+void P_Collide(SnakeElement *snake_pointer, bool *game_on);
 
 // input buffering
 void P_InputBuffers(InputBuffer *input_buffer1, InputBuffer *input_buffer2,
@@ -28,4 +28,10 @@ void P_FlushBuffers2(InputBuffer *input_buffer1, InputBuffer *discard_buffer,
                      Direction *direction_pointer, bool *buffer_flush);
 
 
+void P_ProcessInput(Direction *direction_pointer,
+                    InputBuffer *input_buffer1,
+                    InputBuffer *input_buffer2,
+                    InputBuffer *discard_buffer,
+                    bool *game_on,
+                    bool *has_grown);
 #endif
