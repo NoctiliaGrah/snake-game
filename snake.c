@@ -50,7 +50,7 @@ InputBuffer *discard_buffer = &inpbfdsc;
 SDL_Rect override_rect = {0,0,window_width, window_height};
 
 SnakeElement *new_segment =                  // new_segment prototype because
-(SnakeElement*)malloc(sizeof(SnakeElement)); // the compiler is retarded
+(SnakeElement*)malloc(sizeof(SnakeElement)); // the compiler is braindead
 
 bool is_growing = false;
 bool has_grown = false;
