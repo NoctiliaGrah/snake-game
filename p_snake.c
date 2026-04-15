@@ -34,7 +34,7 @@ void P_MoveSnake(SnakeElement *head,
 
     SnakeElement *current = head->next_element;
 
-    int temp_x = head->last_x; //the last place the head was
+    int temp_x = head->last_x;
     int temp_y = head->last_y;
 
     // pointer to the last node
@@ -91,15 +91,21 @@ void P_MoveSnake(SnakeElement *head,
 //
 void P_Collide(SnakeElement *head, bool *game_on)
 {
+// screen boundary
+#define SB_TOP 0
+#define SB_LEFT 0
+#define SB_BOTTOM COLUMN - 1
+#define SB_RIGHT ROW - 1
+#define ONE_SECOND 1000
 
 SnakeElement *current_node = head->next_element;
 
     // check for wall collision
-    if(head->x > ROW || head->y > COLUMN ||
-       head->x < 0 || head->y < 0)
+    if(head->x > (SB_RIGHT) || head->y > (SB_BOTTOM) ||
+       head->x < SB_TOP || head->y < SB_LEFT)
         {
             printf("Game over.\n");
-            SDL_Delay(1000); // 1 second
+            SDL_Delay(ONE_SECOND);
             *game_on = false;
             SDL_Quit();
         }
@@ -111,7 +117,7 @@ SnakeElement *current_node = head->next_element;
             current_node->y == head->y)
             {
                 printf("Game over.\n");
-                SDL_Delay(1000); // 1 second
+                SDL_Delay(ONE_SECOND);
                 *game_on = false;
                 SDL_Quit();
             }
