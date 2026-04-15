@@ -17,6 +17,9 @@
 
 #include "p_snake.h"
 
+
+
+
 //
 // P_MoveSnake
 // I only kinda know what this is doing
@@ -91,18 +94,30 @@ void P_MoveSnake(SnakeElement *head,
 //
 void P_Collide(SnakeElement *head, bool *game_on)
 {
-// screen boundary
-#define SB_TOP 0
-#define SB_LEFT 0
-#define SB_BOTTOM COLUMN - 1
-#define SB_RIGHT ROW - 1
-#define ONE_SECOND 1000
+    // screen boundary
+    #define SB_TOP 0
+    #define SB_LEFT 0
+    #define SB_BOTTOM COLUMN - 1
+    #define SB_RIGHT ROW - 1
+    #define ONE_SECOND 1000
 
-SnakeElement *current_node = head->next_element;
+    SnakeElement *current_node = head->next_element;
 
     // check for wall collision
     if(head->x > (SB_RIGHT) || head->y > (SB_BOTTOM) ||
-       head->x < SB_TOP || head->y < SB_LEFT)
+        head->x < SB_TOP || head->y < SB_LEFT)
+    {
+        printf("Game over.\n");
+        SDL_Delay(ONE_SECOND);
+        *game_on = false;
+        SDL_Quit();
+    }
+
+    // check for self collision
+    while (current_node != NULL)
+    {
+        if (current_node->x == head->x &&
+            current_node->y == head->y)
         {
             printf("Game over.\n");
             SDL_Delay(ONE_SECOND);
@@ -110,20 +125,8 @@ SnakeElement *current_node = head->next_element;
             SDL_Quit();
         }
 
-    // check for self collision
-    while (current_node != NULL)
-        {
-        if (current_node->x == head->x &&
-            current_node->y == head->y)
-            {
-                printf("Game over.\n");
-                SDL_Delay(ONE_SECOND);
-                *game_on = false;
-                SDL_Quit();
-            }
-
-            current_node = current_node->next_element;
-        }
+        current_node = current_node->next_element;
+    }
 }
 
 
@@ -163,7 +166,6 @@ void P_InputBuffers(InputBuffer *input_buffer1,
                     InputBuffer *discard_buffer,
                     Direction *direction_pointer)
 {
-
     if (input_buffer1->x == I_BUFFER_INIT &&
         input_buffer1->y == I_BUFFER_INIT)
     {
@@ -181,7 +183,6 @@ void P_InputBuffers(InputBuffer *input_buffer1,
         discard_buffer->x = direction_pointer->dx;
         discard_buffer->y = direction_pointer->dy;
     }
-
 }
 
 
@@ -192,7 +193,6 @@ void P_FlushBuffers1(InputBuffer *input_buffer1,
                      InputBuffer *input_buffer2,
                      bool *buffer_flush_flag)
 {
-     // copy input_buffer2 to input_buffer1
      if (*buffer_flush_flag)
         {
         input_buffer1->x = input_buffer2->x;
@@ -223,12 +223,125 @@ void P_FlushBuffers2(InputBuffer *input_buffer1,
         {
         direction_pointer->dx = input_buffer1->x;
         direction_pointer->dy = input_buffer1->y;
+        *buffer_flush_flag = true;
 
-        (*buffer_flush_flag) = true;
         }
     else {
-         (*buffer_flush_flag) = false;
+         *buffer_flush_flag = false;
          discard_buffer->x = I_BUFFER_INIT; // reset for safety
          discard_buffer->y = I_BUFFER_INIT;
          }
+}
+
+
+
+//=================================================================
+
+
+
+
+//
+// P_ProcessInput
+//
+void P_ProcessInput(Direction *direction_pointer,
+                    InputBuffer *input_buffer1,
+                    InputBuffer *input_buffer2,
+                    InputBuffer *discard_buffer,
+                    bool *game_on,
+                    bool *has_grown)
+{
+SnakeElement *new_segment =
+(SnakeElement*)malloc(sizeof(SnakeElement));
+
+SDL_Event event;
+
+    while (SDL_PollEvent(&event))
+    {
+        if (event.type == SDL_QUIT)
+        {
+            free(new_segment);
+            new_segment = NULL;
+
+            *game_on = false;
+        }
+
+        if (event.type == SDL_KEYDOWN)
+        {
+
+            //printf("DEBUG: P_ProcessInput Start\n");
+
+            // HACKHACK: We need a way to tell if the snake
+            // has eaten an apple yet and change the movement
+            // to be free or locked accordingly. This is the
+            // simplest implementation I could think of, but
+            // it is very bad and ugly and horrible and not
+            // at all scaleable in any way. Oh well!
+            //
+            // If the snake hasn't eaten an apple yet, let
+            // it move freely, but if it has eaten one, don't
+            // let it move in the direction opposite of where
+            // it's currently moving.
+            //
+            // If a key for a specific direction is pressed
+            // and if the snake isn't going in the opposite
+            // direction, set the x/y to the right value and
+            // and reset the perpendicular axis back to the
+            // initial value.
+            //
+            // Secretly, the values for the directions are
+            // just -1 and 1, with the reset being 0, but
+            // don't let John know that or he will get mad!
+
+            if (has_grown)
+            {
+                if (event.key.keysym.sym == SDLK_LEFT &&
+                    direction_pointer->dx != DIR_RIGHT)
+                {
+                    direction_pointer->dx = DIR_LEFT;
+                    direction_pointer->dy = DIR_RESET;
+                }
+                if (event.key.keysym.sym == SDLK_RIGHT &&
+                    direction_pointer->dx != DIR_LEFT)
+                {
+                    direction_pointer->dx = DIR_RIGHT;
+                    direction_pointer->dy = DIR_RESET;
+                }
+                if (event.key.keysym.sym == SDLK_UP &&
+                    direction_pointer->dy != DIR_DOWN)
+                {
+                    direction_pointer->dy = DIR_UP;
+                    direction_pointer->dx = DIR_RESET;
+                }
+                if (event.key.keysym.sym == SDLK_DOWN &&
+                    direction_pointer->dy != DIR_UP)
+                {
+                    direction_pointer->dy = DIR_DOWN;
+                    direction_pointer->dx = DIR_RESET;
+                }
+                P_InputBuffers(input_buffer1, input_buffer2,
+                               discard_buffer, direction_pointer);
+            }
+            else
+            {
+                direction_pointer->dx = DIR_RESET;
+                direction_pointer->dy = DIR_RESET;
+                if (event.key.keysym.sym == SDLK_LEFT)
+                {
+                    direction_pointer->dx = DIR_LEFT;
+                }
+                if (event.key.keysym.sym == SDLK_RIGHT)
+                {
+                    direction_pointer->dx = DIR_RIGHT;
+                }
+                if (event.key.keysym.sym == SDLK_UP)
+                {
+                    direction_pointer->dy = DIR_UP;
+                }
+                if (event.key.keysym.sym == SDLK_DOWN)
+                {
+                    direction_pointer->dy = DIR_DOWN;
+                }
+            }
+        }
+    }
 }
