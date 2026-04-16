@@ -8,6 +8,8 @@ A version of Snake written in C using SDL2 for graphics.
 - Add texture support
 - Add a basic menu
 - Error handling
+- Finish writing the general design doc
+- Get reference images for it
 
 # Building
 This requires SDL2, instructions on how to install it can be found here:
